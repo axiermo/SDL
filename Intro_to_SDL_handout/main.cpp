@@ -57,7 +57,7 @@ struct globals
 	SDL_Texture* shot;
 	projectile shots[NUM_SHOTS];
 	int last_shot;
-	bool fire, up, down, left, right;
+	bool fire, up, down, left, right,t;
 	KEY_STATE* keyboard;
 	// TODO 4:
 	Mix_Music* music;
@@ -106,7 +106,7 @@ void Start()
 	g.scroll = 0;
 	g.ship_x = 100;
 	g.ship_y = SCREEN_HEIGHT / 2;
-	g.fire = g.up = g.down = g.left = g.right = false;
+	g.fire = g.up = g.down = g.left = g.right =g.t= false;
 	g.last_shot = 0;
 	g.keyboard = (KEY_STATE*)malloc(sizeof(KEY_STATE) * MAX_KEYS);
 	memset(g.keyboard, KEY_IDLE, MAX_KEYS);
@@ -161,6 +161,8 @@ bool CheckInput()
 	g.right = g.keyboard[SDL_SCANCODE_RIGHT] == KEY_REPEAT;
 	g.fire = g.keyboard[SDL_SCANCODE_SPACE] == KEY_DOWN;
 
+	g.t = g.keyboard[SDL_SCANCODE_T] == KEY_REPEAT;
+
 	return true;
 }
 
@@ -172,26 +174,49 @@ void MoveStuff()
 	// Knowing the booleans up/down/left/right
 	// hold true if the player is trying to move in that direction
 	// calc player's next position (stored in g.x and g.y)
-	if (g.up == true){
-		if ((g.ship_y - SHIP_SPEED) > 0){
+	
+	if ((g.up == true) && (g.down == true)){
+		g.ship_y -= SHIP_SPEED;
+		g.ship_y += SHIP_SPEED;
+	}
+
+	else if (g.up == true){
+		if (g.t == true){
+			if ((g.ship_y - SHIP_SPEED) > 0){
+				g.ship_y -= SHIP_SPEED*2;
+			}
+		} else 
 			g.ship_y -= SHIP_SPEED;
-		}
 	}
 	else if (g.down == true){
-		if ((g.ship_y + SHIP_SPEED < SCREEN_HEIGHT - 64)){
-			g.ship_y += SHIP_SPEED;
+		if (g.t == true){
+			if ((g.ship_y + SHIP_SPEED < SCREEN_HEIGHT - 64)){
+				g.ship_y += SHIP_SPEED*2;
+			}
 		}
+		g.ship_y += SHIP_SPEED;
+	}
+	if ((g.left == true) && (g.right == true)){
+		g.ship_x -= SHIP_SPEED;
+		g.ship_x += SHIP_SPEED;
 	}
 	else if (g.left == true){
-		if (g.ship_x > 0){
-			g.ship_x -= SHIP_SPEED;
+		if (g.t == true){
+			if (g.ship_x > 0){
+				g.ship_x -= SHIP_SPEED*2;
+			}
 		}
+		g.ship_x -= SHIP_SPEED;
 	}
 	else if (g.right == true){
-		if (g.ship_x < SCREEN_WIDTH-64){
-			g.ship_x += SHIP_SPEED;
+		if (g.t == true){
+			if (g.ship_x < SCREEN_WIDTH - 64){
+				g.ship_x += SHIP_SPEED*2;
+			}
 		}
+		g.ship_x += SHIP_SPEED;
 	}
+	
 	if(g.fire)
 	{
 		g.fire = false;
